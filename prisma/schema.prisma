@@ -17,7 +17,7 @@ model User {
   id                            Int                         @id @default(autoincrement())
   email                         String                      @unique
   name                          String                    
-  password                      String                      @db.VarChar(10)
+  password                      String                      @db.VarChar(250)
   telephone                     String                      @db.VarChar(8)
   roleId                        Int                            
   companyId                     Int                            
