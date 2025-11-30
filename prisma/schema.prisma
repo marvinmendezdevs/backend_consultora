@@ -6,11 +6,18 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum RoleTitle {
+  OWNER
+  ADMIN
+  STAFF
+  CLIENT
 }
 
 model User {    
@@ -19,7 +26,8 @@ model User {
   name                          String                    
   password                      String                      @db.VarChar(250)
   telephone                     String                      @db.VarChar(8)
-  roleId                        Int                            
+  roleId                        Int
+  jobTitle                      String                            
   companyId                     Int                            
   activated                     Boolean                     @default(true)
   createdAt                     DateTime                    @default(now())
@@ -30,7 +38,7 @@ model User {
 
 model Role {                      
   id                            Int                         @id @default(autoincrement())
-  name                          String                  
+  name                          RoleTitle                  
   users                         User[]            
 }                     
 

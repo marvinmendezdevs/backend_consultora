@@ -49,3 +49,48 @@ export type User = Prisma.UserModel
  * 
  */
 export type Role = Prisma.RoleModel
+/**
+ * Model Company
+ * 
+ */
+export type Company = Prisma.CompanyModel
+/**
+ * Model ProfessionalType
+ * 
+ */
+export type ProfessionalType = Prisma.ProfessionalTypeModel
+/**
+ * Model Professionals
+ * 
+ */
+export type Professionals = Prisma.ProfessionalsModel
+/**
+ * Model Patients
+ * 
+ */
+export type Patients = Prisma.PatientsModel
+/**
+ * Model ScheduleAppointments
+ * 
+ */
+export type ScheduleAppointments = Prisma.ScheduleAppointmentsModel
+/**
+ * Model CatalogProcedures
+ * 
+ */
+export type CatalogProcedures = Prisma.CatalogProceduresModel
+/**
+ * Model Procedures
+ * 
+ */
+export type Procedures = Prisma.ProceduresModel
+/**
+ * Model MethodePayments
+ * 
+ */
+export type MethodePayments = Prisma.MethodePaymentsModel
+/**
+ * Model Payments
+ * 
+ */
+export type Payments = Prisma.PaymentsModel
