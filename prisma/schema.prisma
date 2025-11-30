@@ -6,25 +6,128 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id            Int             @id @default(autoincrement())
-  email         String          @unique
-  name          String        
-  password      String          @db.VarChar(10)
-  telephone     String          @db.VarChar(8)
-  roleId        Int                
-  role          Role            @relation(fields: [roleId], references: [id])
+model User {    
+  id                            Int                         @id @default(autoincrement())
+  email                         String                      @unique
+  name                          String                    
+  password                      String                      @db.VarChar(10)
+  telephone                     String                      @db.VarChar(8)
+  roleId                        Int                            
+  companyId                     Int                            
+  activated                     Boolean                     @default(true)
+  createdAt                     DateTime                    @default(now())
+  role                          Role                        @relation(fields: [roleId], references: [id])
+  comparny                      Company                     @relation(fields: [companyId], references: [id])
+  patientsRegistered            Patients[]
+}                     
+
+model Role {                      
+  id                            Int                         @id @default(autoincrement())
+  name                          String                  
+  users                         User[]            
+}                     
+
+model Company {                     
+  id                            Int                         @id @default(autoincrement())
+  name                          String                      
+  email                         String?           
+  address                       String                      
+  telephone                     String?                     @db.VarChar(8)
+  createdAt                     DateTime                    @default(now())      
+  users                         User[]        
+  professionals                 Professionals[]       
+  procedures                    CatalogProcedures[]   
+  patients                      Patients[]
+
+}                     
+
+model ProfessionalType           {            
+  id                            Int                         @id @default(autoincrement())
+  name                          String            
+  description                   String?       
+  professionals                 Professionals[]        
+}                 
+
+model Professionals {                  
+  id                            Int                         @id @default(autoincrement())
+  userId                        Int
+  companyId                     Int
+  professionalTypeId            Int
+  professionalLicense           String                      @db.VarChar(15)      
+  digitalSignature              String?                     @db.VarChar(255)
+  active                        Boolean                     @default(true)
+  professionalType              ProfessionalType            @relation(fields: [professionalTypeId], references: [id])
+  company                       Company                     @relation(fields: [companyId], references: [id])
+  // procedures                    Procedures[]
+  scheduleAppointments          ScheduleAppointments[]
 }
 
-model Role {
-  id              Int           @id @default(autoincrement())
-  name            String      
-  users           User[]
+model Patients {                    
+  id                            Int                         @id @default(autoincrement())
+  name                          String                      
+  email                         String?                     
+  telephone                     String?                     @db.VarChar(8)
+  birthdate                     String?                     @db.VarChar(10)
+  gender                        String?                     @db.VarChar(10)                             
+  companyId                     Int
+  registeredBy                  Int
+  registeredAt                  DateTime                    @default(now())
+  company                       Company                     @relation(fields: [companyId], references: [id])      
+  user                          User                        @relation(fields: [registeredBy], references: [id])
+  scheduleAppointments          ScheduleAppointments[]
+}
+
+// Agendar Citas médicas
+model ScheduleAppointments {         
+  id                            Int                         @id @default(autoincrement())
+  companyId                     Int
+  professionalId                Int
+  patienteId                    Int
+  date                          DateTime                    @db.Date
+  hour                          DateTime                    @db.Time
+  status                        String                      @db.VarChar(20)
+  reason                        String                      @db.VarChar(255)      
+  professional                  Professionals               @relation(fields: [professionalId], references: [id])
+  patient                       Patients                    @relation(fields: [patienteId], references: [id])
+}
+
+model CatalogProcedures {                  
+  id                            Int                         @id @default(autoincrement())
+  companyId                     Int
+  name                          String                                            
+  description                   String?                     
+  company                       Company                     @relation(fields: [companyId], references: [id])
+  procedures                    Procedures[]
+}
+
+model Procedures {
+  id                            Int                         @id @default(autoincrement())
+  catalogProcedureId            Int
+  patienteId                    Int
+  date                          DateTime                    
+  notes                         String?                     
+  catalogProcedure              CatalogProcedures           @relation(fields: [catalogProcedureId], references: [id])
+
+}
+
+model MethodePayments {
+  id                            Int                         @id @default(autoincrement())
+  method                        String                      @db.VarChar(15)
+  payments                     Payments[]
+}
+
+model Payments {
+  id                            Int                         @id @default(autoincrement())
+  procedureId                   Int
+  amount                        Float                       
+  date                          DateTime                    @default(now())
+  methodePaymentId              Int
+  methodePayment                MethodePayments             @relation(fields: [methodePaymentId], references: [id])
 }
