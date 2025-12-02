@@ -21,8 +21,8 @@ enum RoleTitle {
 }
 
 enum SexList {
-  MALE
-  FEMALE
+  MAN
+  WOMAN
 }
 
 model User {    
