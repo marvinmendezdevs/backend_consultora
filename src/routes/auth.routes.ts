@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, register } from "@/controllers/auth.controller";
-import { validator } from "@/middlewares/validations";
+import { validator } from "@/middlewares/validations.middleware";
 import { loginValidations, registerValidations } from "@/utils/validation.utils";
 
 

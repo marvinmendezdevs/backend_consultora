@@ -1,11 +1,13 @@
 import { Request, Response } from "express"
-import type { LoginData, RegisterData } from "@/types/auth.types";
+import type { LoginData } from "@/types/auth.types";
 import { prisma } from "@/config/database";
 import { hashPassword, verifyPassword } from "@/utils/bcrypt.utils";
 import { createTokenJwt } from "@/utils/jsonwebtoken.utils";
+import type { User } from "@/generated/prisma/client";
 
 export const register = async (req: Request, res: Response) => {
-    const { email, password }: RegisterData = req.body;
+    const registerData: User = req.body;
+    const { email, password } = registerData;
 
     try {
         // Buscar si ya existe un usuario
