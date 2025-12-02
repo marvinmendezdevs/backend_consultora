@@ -87,7 +87,7 @@ model Clients {
   name                          String                      
   email                         String?                     
   telephone                     String?                     @db.VarChar(8)
-  birthdate                     String?                     @db.VarChar(10)
+  birthdate                     DateTime                    @db.Date
   sex                           SexList                     
   companyId                     Int
   registeredBy                  Int
