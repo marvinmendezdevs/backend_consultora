@@ -20,6 +20,11 @@ enum RoleTitle {
   CLIENT
 }
 
+enum SexList {
+  MALE
+  FEMALE
+}
+
 model User {    
   id                            Int                         @id @default(autoincrement())
   email                         String                      @unique
@@ -83,7 +88,7 @@ model Clients {
   email                         String?                     
   telephone                     String?                     @db.VarChar(8)
   birthdate                     String?                     @db.VarChar(10)
-  gender                        String?                     @db.VarChar(10)                             
+  sex                           SexList                     
   companyId                     Int
   registeredBy                  Int
   registeredAt                  DateTime                    @default(now())
