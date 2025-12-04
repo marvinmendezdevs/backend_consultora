@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { prisma } from "@/config/database";
-import { User } from "@/generated/prisma/client";
+import type { User } from "@/generated/prisma/client";
 import { verifyTokenJwt } from "@/utils/jsonwebtoken.utils";
 
 declare global {
