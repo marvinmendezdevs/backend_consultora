@@ -25,6 +25,25 @@ enum SexList {
   WOMAN
 }
 
+enum EventType {
+  CITA_NORMAL
+  SESION
+  SEGUIMIENTO
+  SIN_CITA
+  PRIMERA_CONSULTA
+  NO_DISPONIBLE
+}
+
+enum EventStatus {
+  PROGRAMADO
+  CONFIRMADO
+  EN_PROGRESO
+  FINALIZADO
+  CANCELADO
+  NO_ASISTIÓ
+  REPROGRAMADO
+}
+
 model User {    
   id                            Int                         @id @default(autoincrement())
   email                         String                      @unique
@@ -56,7 +75,7 @@ model Company {
   createdAt                     DateTime                    @default(now())      
   users                         User[]        
   professionals                 Professionals[]       
-  procedures                    CatalogProcedures[]   
+  procedures                    CatalogServices[]   
   clients                       Clients[]
 
 }                     
@@ -79,7 +98,7 @@ model Professionals {
   professionalType              ProfessionalType            @relation(fields: [professionalTypeId], references: [id])
   company                       Company                     @relation(fields: [companyId], references: [id])
   // procedures                    Procedures[]
-  scheduleAppointments          ScheduleAppointments[]
+  events                        Events[]
 }
 
 model Clients {                    
@@ -94,39 +113,40 @@ model Clients {
   registeredAt                  DateTime                    @default(now())
   company                       Company                     @relation(fields: [companyId], references: [id])      
   user                          User                        @relation(fields: [registeredBy], references: [id])
-  scheduleAppointments          ScheduleAppointments[]
+  evento                        Events[]
 }
 
-// Agendar Citas médicas
-model ScheduleAppointments {         
+// Calendario
+model Events {         
   id                            Int                         @id @default(autoincrement())
   companyId                     Int
   professionalId                Int
   clientId                      Int
   date                          DateTime                    @db.Date
   hour                          DateTime                    @db.Time
-  status                        String                      @db.VarChar(20)
-  reason                        String                      @db.VarChar(255)      
+  status                        EventStatus
+  type                          EventType
+  notes                         String?
   professional                  Professionals               @relation(fields: [professionalId], references: [id])
-  clients                       Clients                    @relation(fields: [clientId], references: [id])
+  clients                       Clients                     @relation(fields: [clientId], references: [id])
 }
 
-model CatalogProcedures {                  
+model CatalogServices {                  
   id                            Int                         @id @default(autoincrement())
   companyId                     Int
   name                          String                                            
   description                   String?                     
   company                       Company                     @relation(fields: [companyId], references: [id])
-  procedures                    Procedures[]
+  services                      Services[]
 }
 
-model Procedures {
+model Services {
   id                            Int                         @id @default(autoincrement())
-  catalogProcedureId            Int
+  catalogServicesId             Int
   clientId                      Int
   date                          DateTime                    
   notes                         String?                     
-  catalogProcedure              CatalogProcedures           @relation(fields: [catalogProcedureId], references: [id])
+  catalogServices               CatalogServices             @relation(fields: [catalogServicesId], references: [id])
 
 }
 
