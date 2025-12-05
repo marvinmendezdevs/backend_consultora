@@ -1,23 +1,14 @@
-import { prisma } from "@/config/database";
+import { DashboardService } from "@/services/dashboard.services";
+import { AppError } from "@/utils/AppError";
+import { catchAsync } from "@/utils/catchAsync.utils";
 import { Request, Response, NextFunction } from "express";
 
-export const dashboard = async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user!;
+export const dashboard = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
 
-    try {
-        const [clients] = await Promise.all([
-            prisma.clients.count({
-                where: {
-                    companyId: user.companyId,
-                }
-            }),
-        ]);
-
-        res.json({
-            clients
-        });
-        
-    } catch (error) {
-        return res.status(500).json({msg: "Error en el servidor"});
+    if (!user) {
+        throw new AppError('Usuario no encontrado', 404);
     }
-}
+    const stadistics = await DashboardService.stadistics(user.companyId);
+    res.status(200).json(stadistics);
+});

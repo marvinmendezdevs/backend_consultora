@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express"
 import { prisma } from "@/config/database";
 import type { User } from "@/generated/prisma/client";
 import { verifyTokenJwt } from "@/utils/jsonwebtoken.utils";
+import { catchAsync } from "@/utils/catchAsync.utils";
+import { AppError } from "@/utils/AppError";
 
 declare global {
     namespace Express {
@@ -11,12 +13,11 @@ declare global {
     }
 }
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;
 
     if (!authorization) {
-        const error = new Error('Debe iniciar sesión');
-        return res.status(409).json({ msg: error.message });
+        throw new AppError('Debe iniciar sesión', 401);
     }
 
     const [, token] = authorization.split(" ");
@@ -25,27 +26,15 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const tokenVerified = verifyTokenJwt(token!);
 
     if (!tokenVerified) {
-        const error = new Error('Inicio de sesión no válido');
-        return res.status(409).json({ msg: error.message });
+        throw new AppError('Inicio de sesión no válido', 401);
     }
 
-    try {
-        const user = await prisma.user.findFirst({
-            where: {
-                id: tokenVerified.id
-            }
-        });
+    const user = await prisma.user.findFirst({ where: { id: tokenVerified.id } });
 
-        if (!user) {
-            const error = new Error('Usuario no encontrado');
-            return res.status(409).json({ msg: error.message });
-        }
-
-        req.user = user;
-
-        next();
-    } catch {
-        const error = new Error('Error en el servidor');
-        return res.status(500).json({ msg: error.message });
+    if (!user) {
+        throw new AppError('Usuario no encontrado', 404);
     }
-}
+
+    req.user = user;
+    next();
+});

@@ -28,7 +28,7 @@ export const AuthService = {
 
     login: async (dataLogin: LoginData) => {
         const { email, password } = dataLogin;
-        
+
         // Buscar si ya existe un usuario
         const user = await prisma.user.findFirst({ where: { email } });
 
@@ -40,10 +40,10 @@ export const AuthService = {
         const checkPassword = await verifyPassword(password, user.password);
 
         if (!checkPassword) {
-            throw new AppError('La contraseña no coincide con este usuario', 409);
+            throw new AppError('La contraseña no coincide con este usuario', 401);
         }
 
-        const token = createTokenJwt({id: user.id, email: user.email});
+        const token = createTokenJwt({ id: user.id, email: user.email });
 
         return token;
     }
