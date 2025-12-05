@@ -18,3 +18,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         token
     });
 });
+
+export const getUser = catchAsync(async (req: Request, res: Response) => {
+    const { password, ...rest } = req.user;
+    res.status(200).json(rest);
+});

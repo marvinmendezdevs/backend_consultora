@@ -11,8 +11,8 @@ export const registerValidations = [
         .notEmpty()
         .withMessage("Digite un contraseña válida")
         .trim()
-        .isLength({ min: 6, max: 8 })
-        .withMessage('La contraseña debe tener entre 6 y 8 caracteres'),
+        .isLength({ min: 8 })
+        .withMessage('La contraseña debe tener al menos 8 caracteres'),
     body('telephone')
         .notEmpty()
         .withMessage('Digite el teléfono'),
