@@ -1,4 +1,3 @@
-import { User } from "@/generated/prisma/client";
 import { CreateTokenJwtType } from "@/types/auth.types";
 import jwt, { JwtPayload } from "jsonwebtoken"
 
