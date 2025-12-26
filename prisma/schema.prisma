@@ -50,6 +50,8 @@ model User {
   name                          String                    
   password                      String                      @map("password_hash")
   telephone                     String                      @db.VarChar(20)
+  dui                           String
+  username                      String
   roleId                        Int
   jobTitle                      String                            
   businessId                    Int                            
