@@ -10,63 +10,64 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  //url       = env("DATABASE_URL")
+  //directUrl = env("DIRECT_URL")
 }
 
-enum RoleTitle {
-  OWNER
-  ADMIN
-  STAFF
-  CLIENT
-}
+
+
+//enum RoleTitle {
+//  OWNER
+//  ADMIN
+//  STAFF
+//  CLIENT
+//}
 
 enum SexList {
   MAN
   WOMAN
 }
 
-enum EventType {
-  CITA_NORMAL
-  SESION
-  SEGUIMIENTO
-  SIN_CITA
-  PRIMERA_CONSULTA
-  NO_DISPONIBLE
-}
+//enum EventType {
+//  APPOINTMENT //Para citas estándar
+//  SESSION  //Para servicios de varias sesiones
+//  WALK_IN  //Para clientes sin cita previa
+//}
 
-enum EventStatus {
-  PROGRAMADO
-  CONFIRMADO
-  EN_PROGRESO
-  FINALIZADO
-  CANCELADO
-  NO_ASISTIÓ
-  REPROGRAMADO
-}
+//enum EventStatus {
+//  SCHEDULED
+//  CONFIRMED
+//  COMPLETED
+//  CANCELLED
+//  NO_SHOW
+//  RESCHEDULED
+//}
 
 model User {    
   id                            Int                         @id @default(autoincrement())
   email                         String                      @unique
   name                          String                    
-  password                      String                      @db.VarChar(250)
-  telephone                     String                      @db.VarChar(8)
+  password                      String                      @map("password_hash")
+  telephone                     String                      @db.VarChar(20)
   roleId                        Int
   jobTitle                      String                            
-  companyId                     Int                            
+  businessId                    Int                            
   activated                     Boolean                     @default(true)
   createdAt                     DateTime                    @default(now())
   role                          Role                        @relation(fields: [roleId], references: [id])
-  company                       Company                     @relation(fields: [companyId], references: [id])
-  ClientsRegistered             Clients[]
+  business                      Business                    @relation(fields: [businessId], references: [id])
+  ClientsRegistered             Client[]
+  professional                  ProfessionalInfo?
 }                     
 
 model Role {                      
   id                            Int                         @id @default(autoincrement())
-  name                          RoleTitle                  
+  name                          String                 
   users                         User[]            
 }                     
 
-model Company {                     
+model Business {                     
   id                            Int                         @id @default(autoincrement())
   name                          String                      
   email                         String?           
@@ -74,9 +75,9 @@ model Company {
   telephone                     String?                     @db.VarChar(8)
   createdAt                     DateTime                    @default(now())      
   users                         User[]        
-  professionals                 Professionals[]       
-  procedures                    CatalogServices[]   
-  clients                       Clients[]
+  professionals                 ProfessionalInfo[]       
+  services                      Service[]
+  clients                       Client[]
 
 }                     
 
@@ -84,83 +85,100 @@ model ProfessionalType           {
   id                            Int                         @id @default(autoincrement())
   name                          String            
   description                   String?       
-  professionals                 Professionals[]        
+  professionals                 ProfessionalInfo[]        
 }                 
 
-model Professionals {                  
+model ProfessionalInfo {                  
   id                            Int                         @id @default(autoincrement())
-  userId                        Int
-  companyId                     Int
+  userId                        Int                         @unique
+  businessId                    Int
   professionalTypeId            Int
   professionalLicense           String                      @db.VarChar(15)      
   digitalSignature              String?                     @db.VarChar(255)
   active                        Boolean                     @default(true)
   professionalType              ProfessionalType            @relation(fields: [professionalTypeId], references: [id])
-  company                       Company                     @relation(fields: [companyId], references: [id])
-  // procedures                    Procedures[]
-  events                        Events[]
+  business                      Business                    @relation(fields: [businessId], references: [id])
+  user                          User                       @relation(fields: [userId], references: [id])
+  events                        Event[]
 }
 
-model Clients {                    
+model Client {                    
   id                            Int                         @id @default(autoincrement())
   name                          String                      
   email                         String?                     
-  telephone                     String?                     @db.VarChar(8)
+  telephone                     String?                     @db.VarChar(20)
   birthdate                     DateTime                    @db.Date
-  sex                           SexList                     
-  companyId                     Int
+  sex                           String                     
+  businessId                    Int
   registeredBy                  Int
   registeredAt                  DateTime                    @default(now())
-  company                       Company                     @relation(fields: [companyId], references: [id])      
+  business                      Business                    @relation(fields: [businessId], references: [id])      
   user                          User                        @relation(fields: [registeredBy], references: [id])
-  evento                        Events[]
+  event                         Event[]
 }
 
-// Calendario
-model Events {         
+model Service {
   id                            Int                         @id @default(autoincrement())
-  companyId                     Int
+  businessId                    Int
+  name                          String                                            
+  description                   String?
+  duration                      Int
+  price                         Float?
+  business                      Business                   @relation(fields: [businessId], references: [id])
+  event                         Event[]
+}
+
+model Event {         
+  id                            Int                         @id @default(autoincrement())
   professionalId                Int
   clientId                      Int
-  date                          DateTime                    @db.Date
-  hour                          DateTime                    @db.Time
-  status                        EventStatus
-  type                          EventType
+  startAt                       DateTime
+  endAt                         DateTime?
+  eventStatusId                 Int
+  eventTypeId                   Int
   notes                         String?
-  professional                  Professionals               @relation(fields: [professionalId], references: [id])
-  clients                       Clients                     @relation(fields: [clientId], references: [id])
+  serviceId                     Int
+  service                       Service                    @relation(fields: [serviceId], references: [id])
+  professional                  ProfessionalInfo            @relation(fields: [professionalId], references: [id])
+  client                        Client                     @relation(fields: [clientId], references: [id])
+  eventStatus                   EventStatus                 @relation(fields: [eventStatusId], references: [id])
+  eventType                     EventType                   @relation(fields: [eventTypeId], references: [id])
+  session                       Session[]
+  payment                       Payment[]
 }
 
-model CatalogServices {                  
-  id                            Int                         @id @default(autoincrement())
-  companyId                     Int
-  name                          String                                            
-  description                   String?                     
-  company                       Company                     @relation(fields: [companyId], references: [id])
-  services                      Services[]
+model Session {
+  id                          Int                         @id @default(autoincrement())
+  eventId                     Int
+  sessionNumber               Int
+  notes                       String?
+  event                       Event                      @relation(fields: [eventId], references: [id])                    
 }
 
-model Services {
-  id                            Int                         @id @default(autoincrement())
-  catalogServicesId             Int
-  clientId                      Int
-  date                          DateTime                    
-  notes                         String?                     
-  catalogServices               CatalogServices             @relation(fields: [catalogServicesId], references: [id])
-
+model EventType {
+  id              Int           @id @default(autoincrement())
+  name            String
+  event           Event[]
 }
 
-model MethodePayments {
+model EventStatus {
+  id              Int           @id @default(autoincrement())
+  name            String
+  event           Event[]
+}
+
+model PaymentMethod {
   id                            Int                         @id @default(autoincrement())
   method                        String                      @db.VarChar(15)
-  payments                      Payments[]
+  payments                      Payment[]
 }
 
-model Payments {
+model Payment {
   id                            Int                         @id @default(autoincrement())
-  procedureId                   Int
+  eventId                       Int
   amount                        Float                       
   date                          DateTime                    @default(now())
-  methodePaymentId              Int
-  methodePayment                MethodePayments             @relation(fields: [methodePaymentId], references: [id])
+  paymentMethodId               Int
+  paymentMethod                 PaymentMethod               @relation(fields: [paymentMethodId], references: [id])
+  event                         Event                       @relation(fields: [eventId], references: [id])
 }
